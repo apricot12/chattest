@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Personal Assistant</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Chat Section -->
+        <div class="chat-section">
+            <div class="header">
+                <h1>🤖 Personal Assistant</h1>
+                <div class="header-buttons">
+                    <button id="toggleCalendarBtn" class="toggle-btn">📅 Calendar</button>
+                    <button id="clearBtn" class="clear-btn">Clear Chat</button>
+                </div>
+            </div>
+
+            <div id="chatContainer" class="chat-container">
+                <div class="welcome-message">
+                    <p>👋 Hello! I'm your personal assistant. I can help you with:</p>
+                    <ul>
+                        <li>Creating and managing tasks</li>
+                        <li>Scheduling events on your calendar</li>
+                        <li>Finding recipes</li>
+                        <li>Answering general questions</li>
+                    </ul>
+                    <p>Just type your message below to get started!</p>
+                </div>
+            </div>
+
+            <div class="input-container">
+                <input
+                    type="text"
+                    id="messageInput"
+                    placeholder="Type your message here..."
+                    autocomplete="off"
+                >
+                <button id="sendBtn" class="send-btn">Send</button>
+            </div>
+        </div>
+
+        <!-- Calendar Section -->
+        <div class="calendar-section" id="calendarSection">
+            <div class="calendar-header">
+                <button id="prevMonthBtn" class="nav-btn">◀</button>
+                <h2 id="currentMonth">Month Year</h2>
+                <button id="nextMonthBtn" class="nav-btn">▶</button>
+            </div>
+
+            <div class="calendar-controls">
+                <button id="todayBtn" class="control-btn">Today</button>
+                <button id="addEventBtn" class="control-btn primary">+ Add Event</button>
+            </div>
+
+            <div class="calendar-grid" id="calendarGrid">
+                <div class="calendar-day-header">Sun</div>
+                <div class="calendar-day-header">Mon</div>
+                <div class="calendar-day-header">Tue</div>
+                <div class="calendar-day-header">Wed</div>
+                <div class="calendar-day-header">Thu</div>
+                <div class="calendar-day-header">Fri</div>
+                <div class="calendar-day-header">Sat</div>
+            </div>
+
+            <div class="events-list">
+                <h3>Upcoming Events</h3>
+                <div id="upcomingEvents" class="upcoming-events-container">
+                    <!-- Events will be populated here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Day View Modal -->
+    <div id="dayViewModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="dayViewTitle">Events for Day</h2>
+                <span class="close-day-view">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div id="dayViewEvents" class="day-view-events"></div>
+                <button id="addEventFromDayBtn" class="btn-primary" style="margin-top: 20px; width: 100%;">+ Add Event</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Event Modal -->
+    <div id="eventModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">Add Event</h2>
+                <span class="close">&times;</span>
+            </div>
+            <div class="modal-body">
+                <form id="eventForm">
+                    <div class="form-group">
+                        <label for="eventTitle">Title *</label>
+                        <input type="text" id="eventTitle" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="eventDescription">Description</label>
+                        <textarea id="eventDescription" rows="3"></textarea>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="eventStartDate">Start Date *</label>
+                            <input type="date" id="eventStartDate" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="eventStartTime">Start Time *</label>
+                            <input type="time" id="eventStartTime" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="eventEndDate">End Date *</label>
+                            <input type="date" id="eventEndDate" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="eventEndTime">End Time *</label>
+                            <input type="time" id="eventEndTime" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="eventLocation">Location</label>
+                        <input type="text" id="eventLocation">
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="eventCategory">Category</label>
+                            <select id="eventCategory">
+                                <option value="personal">Personal</option>
+                                <option value="work">Work</option>
+                                <option value="meeting">Meeting</option>
+                                <option value="appointment">Appointment</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="eventRecurrence">Recurrence</label>
+                            <select id="eventRecurrence">
+                                <option value="none">None</option>
+                                <option value="daily">Daily</option>
+                                <option value="weekly">Weekly</option>
+                                <option value="monthly">Monthly</option>
+                                <option value="yearly">Yearly</option>
+                            </select>
+                        </div>
+                    </div>
+                    <input type="hidden" id="eventId">
+                    <div class="modal-actions">
+                        <button type="button" id="deleteEventBtn" class="btn-delete" style="display: none;">Delete</button>
+                        <div class="modal-actions-right">
+                            <button type="button" id="cancelEventBtn" class="btn-secondary">Cancel</button>
+                            <button type="submit" class="btn-primary">Save Event</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
