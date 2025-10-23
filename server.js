@@ -1,6 +1,7 @@
 const express = require('express');
 const OpenAI = require('openai');
 const cors = require('cors');
+const chrono = require('chrono-node');
 require('dotenv').config();
 
 // Validate required environment variables
@@ -9,6 +10,31 @@ if (!process.env.OPENAI_API_KEY) {
   console.error('Please create a .env file with your OpenAI API key');
   console.error('See .env.example for reference');
   process.exit(1);
+}
+
+// Helper function to convert Date to ISO-like string preserving local time
+function toLocalISOString(date) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  const hours = String(date.getHours()).padStart(2, '0');
+  const minutes = String(date.getMinutes()).padStart(2, '0');
+  const seconds = String(date.getSeconds()).padStart(2, '0');
+  return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}`;
+}
+
+// Helper function to parse natural language dates using chrono-node
+function parseNaturalLanguageDate(text, referenceDate = new Date()) {
+  const results = chrono.parse(text, referenceDate, { forwardDate: true });
+  if (results && results.length > 0) {
+    const result = results[0];
+    return {
+      start: result.start.date(),
+      end: result.end ? result.end.date() : null,
+      text: result.text
+    };
+  }
+  return null;
 }
 
 const app = express();
@@ -450,27 +476,42 @@ app.post('/api/chat', async (req, res) => {
       case 'SCHEDULE_EVENT':
         // Create calendar event from entities
         const { entities } = intentData;
-        if (!entities.title || !entities.startDateTime) {
-          assistantMessage = "I need more information to create the event. Please provide at least a title and start date/time.";
+
+        // Use chrono-node to parse dates from the original user message
+        // This is more reliable than asking the AI to do it
+        const parsedDate = parseNaturalLanguageDate(message);
+
+        if (!entities.title) {
+          assistantMessage = "I need more information to create the event. Please provide at least a title.";
+        } else if (!parsedDate || !parsedDate.start) {
+          assistantMessage = "I couldn't understand the date and time. Please specify when you'd like to schedule this event.";
         } else {
-          // Calculate end time if not provided
-          let endDateTime = entities.endDateTime;
-          if (!endDateTime && entities.duration) {
-            const start = new Date(entities.startDateTime);
-            endDateTime = new Date(start.getTime() + entities.duration * 60000).toISOString();
-          } else if (!endDateTime) {
+          // Use the parsed date from chrono-node instead of AI's attempt
+          // Preserve local time (don't convert to UTC) to avoid date/time shifting
+          const startDateTime = toLocalISOString(parsedDate.start);
+
+          // Calculate end time
+          let endDateTime;
+          if (parsedDate.end) {
+            // If chrono found an end time (e.g., "2pm to 4pm"), use it
+            endDateTime = toLocalISOString(parsedDate.end);
+          } else if (entities.duration) {
+            // Use duration if specified
+            const endDate = new Date(parsedDate.start.getTime() + entities.duration * 60000);
+            endDateTime = toLocalISOString(endDate);
+          } else {
             // Default to 1 hour
-            const start = new Date(entities.startDateTime);
-            endDateTime = new Date(start.getTime() + 60 * 60000).toISOString();
+            const endDate = new Date(parsedDate.start.getTime() + 60 * 60000);
+            endDateTime = toLocalISOString(endDate);
           }
 
           const newEvent = createEvent(sessionId, {
             title: entities.title,
             description: entities.description || '',
-            startDateTime: entities.startDateTime,
+            startDateTime: startDateTime,
             endDateTime: endDateTime,
             location: entities.location || '',
-            category: entities.category || 'personal',
+            category: entities.category || 'meeting',
             recurrence: entities.recurrence || 'none'
           });
 

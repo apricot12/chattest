@@ -1059,10 +1059,12 @@ body {
 @media (min-width: 1024px) and (max-width: 1280px) {
     .chat-section {
         max-width: 900px;
+        margin: 0 auto;
     }
 
     .app-container.side-by-side .chat-section {
         max-width: 50%;
+        margin: 0;
     }
 
     .app-container.side-by-side .calendar-section {
@@ -1086,10 +1088,12 @@ body {
 @media (min-width: 1280px) {
     .chat-section {
         max-width: 1000px;
+        margin: 0 auto;
     }
 
     .app-container.side-by-side .chat-section {
         max-width: 55%;
+        margin: 0;
     }
 
     .app-container.side-by-side .calendar-section {

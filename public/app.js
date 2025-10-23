@@ -541,28 +541,16 @@ function getEventsForDate(date) {
 // Load calendar events from API and sync with localStorage
 async function loadCalendarEvents() {
     try {
-        // First, try to load from localStorage
-        const localEvents = loadEventsFromStorage();
-
-        // Fetch from server
+        // Fetch from server - server is the source of truth
         const response = await fetch(`/api/calendar/events?sessionId=${sessionId}`);
         const data = await response.json();
         const serverEvents = data.events || [];
 
-        // Merge server events with local events (server takes priority for conflicts)
-        // Use a Map to deduplicate by event ID
-        const eventsMap = new Map();
+        // Use server events directly (server is authoritative)
+        // This ensures deletions and updates from server are properly reflected
+        calendarEvents = serverEvents;
 
-        // Add local events first
-        localEvents.forEach(event => eventsMap.set(event.id, event));
-
-        // Add/override with server events
-        serverEvents.forEach(event => eventsMap.set(event.id, event));
-
-        // Convert back to array
-        calendarEvents = Array.from(eventsMap.values());
-
-        // Save merged events to localStorage
+        // Save server events to localStorage for offline access
         saveEventsToStorage(calendarEvents);
 
         renderCalendar();
@@ -713,8 +701,10 @@ async function saveEvent() {
     const category = document.getElementById('eventCategory').value;
     const recurrence = document.getElementById('eventRecurrence').value;
 
-    const startDateTime = new Date(`${startDate}T${startTime}`).toISOString();
-    const endDateTime = new Date(`${endDate}T${endTime}`).toISOString();
+    // Create ISO string while preserving local timezone (avoiding UTC conversion)
+    // This ensures the event displays on the correct date in the calendar
+    const startDateTime = `${startDate}T${startTime}:00`;
+    const endDateTime = `${endDate}T${endTime}:00`;
 
     const eventData = {
         title,
