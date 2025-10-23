@@ -4,9 +4,14 @@ const messageInput = document.getElementById('messageInput');
 const sendBtn = document.getElementById('sendBtn');
 const clearBtn = document.getElementById('clearBtn');
 
-// Calendar elements
-const toggleCalendarBtn = document.getElementById('toggleCalendarBtn');
+// Tab elements
+const chatTab = document.getElementById('chatTab');
+const calendarTab = document.getElementById('calendarTab');
+const toggleLayoutBtn = document.getElementById('toggleLayoutBtn');
+const chatSection = document.querySelector('.chat-section');
 const calendarSection = document.getElementById('calendarSection');
+
+// Calendar elements
 const calendarGrid = document.getElementById('calendarGrid');
 const currentMonthDisplay = document.getElementById('currentMonth');
 const prevMonthBtn = document.getElementById('prevMonthBtn');
@@ -46,6 +51,10 @@ let selectedDate = null;
 // Local storage keys
 const STORAGE_KEY = 'personal-assistant-chat-messages';
 const EVENTS_STORAGE_KEY = 'personal-assistant-calendar-events';
+const LAYOUT_PREFERENCE_KEY = 'personal-assistant-layout-preference';
+
+// Layout state
+let isSideBySideLayout = false;
 
 // Load chat history from local storage
 function loadChatHistory() {
@@ -182,10 +191,8 @@ async function sendMessage() {
             await loadCalendarEvents();
 
             // Optionally auto-open calendar to show the created/updated event
-            if (calendarSection.classList.contains('hidden')) {
-                calendarSection.classList.remove('hidden');
-                toggleCalendarBtn.classList.add('active');
-                renderCalendar();
+            if (!calendarSection.classList.contains('active-view') && !isSideBySideLayout) {
+                calendarTab.click();
             }
         }
 
@@ -316,17 +323,78 @@ function showTypingIndicator() {
     return messageDiv;
 }
 
-// Calendar functionality
+// Tab and Layout functionality
 
-// Toggle calendar visibility
-toggleCalendarBtn.addEventListener('click', () => {
-    calendarSection.classList.toggle('hidden');
-    toggleCalendarBtn.classList.toggle('active');
-    if (!calendarSection.classList.contains('hidden')) {
-        renderCalendar();
-        loadCalendarEvents();
+// Switch to chat view
+chatTab.addEventListener('click', () => {
+    if (!isSideBySideLayout) {
+        chatTab.classList.add('active');
+        calendarTab.classList.remove('active');
+        chatSection.classList.add('active-view');
+        calendarSection.classList.remove('active-view');
     }
 });
+
+// Switch to calendar view
+calendarTab.addEventListener('click', () => {
+    if (!isSideBySideLayout) {
+        calendarTab.classList.add('active');
+        chatTab.classList.remove('active');
+        calendarSection.classList.add('active-view');
+        chatSection.classList.remove('active-view');
+    }
+    // Always render and load calendar when switching to it
+    renderCalendar();
+    loadCalendarEvents();
+});
+
+// Toggle between tab and side-by-side layout
+toggleLayoutBtn.addEventListener('click', () => {
+    isSideBySideLayout = !isSideBySideLayout;
+    const appContainer = document.querySelector('.app-container');
+
+    if (isSideBySideLayout) {
+        appContainer.classList.add('side-by-side');
+        chatSection.classList.add('active-view');
+        calendarSection.classList.add('active-view');
+        toggleLayoutBtn.textContent = '📱';
+        toggleLayoutBtn.title = 'Switch to tab view';
+        // Both tabs appear active in side-by-side mode
+        chatTab.classList.add('active');
+        calendarTab.classList.add('active');
+    } else {
+        appContainer.classList.remove('side-by-side');
+        toggleLayoutBtn.textContent = '⚡';
+        toggleLayoutBtn.title = 'Toggle side-by-side view';
+        // Restore tab state
+        if (chatTab.classList.contains('active')) {
+            chatSection.classList.add('active-view');
+            calendarSection.classList.remove('active-view');
+        } else {
+            chatSection.classList.remove('active-view');
+            calendarSection.classList.add('active-view');
+        }
+    }
+
+    // Save preference
+    localStorage.setItem(LAYOUT_PREFERENCE_KEY, isSideBySideLayout);
+
+    // Re-render calendar if visible
+    if (calendarSection.classList.contains('active-view')) {
+        renderCalendar();
+    }
+});
+
+// Load layout preference
+function loadLayoutPreference() {
+    const saved = localStorage.getItem(LAYOUT_PREFERENCE_KEY);
+    if (saved === 'true' && window.innerWidth >= 1024) {
+        // Only apply side-by-side on larger screens
+        toggleLayoutBtn.click();
+    }
+}
+
+// Calendar functionality
 
 // Calendar navigation
 prevMonthBtn.addEventListener('click', () => {
@@ -711,8 +779,8 @@ async function deleteEvent(eventId) {
 loadChatHistory();
 messageInput.focus();
 
-// Initialize calendar (hidden by default)
-calendarSection.classList.add('hidden');
-
 // Load events from localStorage on startup (for offline access)
 calendarEvents = loadEventsFromStorage();
+
+// Load layout preference on startup
+loadLayoutPreference();

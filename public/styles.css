@@ -10,57 +10,123 @@ body {
     height: 100vh;
     margin: 0;
     padding: 0;
+    overflow: hidden;
 }
 
 .app-container {
     width: 100%;
     height: 100vh;
     display: flex;
+    flex-direction: column;
     background: #0f0f0f;
-    justify-content: center;
 }
 
-.chat-section {
-    flex: 1;
-    max-width: 800px;
-    background: #1a1a1a;
-    display: flex;
+/* Side-by-side layout for larger screens */
+.app-container.side-by-side {
+    flex-direction: row;
+}
+
+.app-container.side-by-side .tab-navigation {
     flex-direction: column;
+    width: auto;
+    border-right: 1px solid #2a2a2a;
+    border-bottom: none;
+}
+
+.app-container.side-by-side .chat-section,
+.app-container.side-by-side .calendar-section {
+    flex: 1;
+    display: flex !important;
+}
+
+.app-container.side-by-side .chat-section {
     border-right: 1px solid #2a2a2a;
 }
 
-.app-container:has(.calendar-section:not(.hidden)) {
-    justify-content: flex-start;
+/* Tab Navigation */
+.tab-navigation {
+    background: #1f1f1f;
+    border-bottom: 1px solid #2a2a2a;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 20px;
+    min-height: 60px;
+    flex-shrink: 0;
 }
 
+.tab-container {
+    display: flex;
+    gap: 8px;
+}
+
+.tab-btn {
+    background: transparent;
+    border: none;
+    color: #909090;
+    padding: 12px 20px;
+    cursor: pointer;
+    font-size: 15px;
+    font-weight: 600;
+    border-bottom: 3px solid transparent;
+    transition: all 0.3s;
+}
+
+.tab-btn:hover {
+    color: #e0e0e0;
+    background: #2a2a2a;
+}
+
+.tab-btn.active {
+    color: #7c8adb;
+    border-bottom-color: #7c8adb;
+}
+
+.header-actions {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.layout-toggle-btn {
+    background: #2a2a2a;
+    border: 1px solid #3a3a3a;
+    color: #e0e0e0;
+    padding: 8px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: all 0.3s;
+}
+
+.layout-toggle-btn:hover {
+    background: #3a3a3a;
+    border-color: #4a4a4a;
+}
+
+/* Chat and Calendar Sections */
+.chat-section,
 .calendar-section {
     flex: 1;
     background: #1a1a1a;
-    display: flex;
+    display: none;
     flex-direction: column;
+    overflow: hidden;
+}
+
+.chat-section.active-view,
+.calendar-section.active-view {
+    display: flex;
+}
+
+.chat-section {
+    width: 100%;
+    max-width: 100%;
+}
+
+.calendar-section {
     padding: 20px;
     overflow-y: auto;
-    transition: transform 0.3s ease;
-}
-
-.calendar-section.hidden {
-    display: none;
-}
-
-@media (max-width: 1024px) {
-    .app-container {
-        flex-direction: column;
-    }
-
-    .chat-section {
-        max-width: 100%;
-        border-right: none;
-        border-bottom: 1px solid #2a2a2a;
-    }
-
-    .calendar-section {
-        max-height: 50vh;
-    }
 }
 
 .header {
@@ -68,9 +134,10 @@ body {
     color: white;
     padding: 20px 30px;
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
     align-items: center;
     border-bottom: 1px solid #2a2a2a;
+    flex-shrink: 0;
 }
 
 .header h1 {
@@ -78,12 +145,7 @@ body {
     font-weight: 600;
 }
 
-.header-buttons {
-    display: flex;
-    gap: 10px;
-}
-
-.toggle-btn, .clear-btn {
+.clear-btn {
     background: #2a2a2a;
     border: 1px solid #3a3a3a;
     color: #e0e0e0;
@@ -94,14 +156,9 @@ body {
     transition: all 0.3s;
 }
 
-.toggle-btn:hover, .clear-btn:hover {
+.clear-btn:hover {
     background: #3a3a3a;
     border-color: #4a4a4a;
-}
-
-.toggle-btn.active {
-    background: #7c8adb;
-    border-color: #7c8adb;
 }
 
 .chat-container {
@@ -740,4 +797,387 @@ body {
 .upcoming-events-container::-webkit-scrollbar-thumb:hover,
 .day-view-events::-webkit-scrollbar-thumb:hover {
     background: #4a4a4a;
+}
+
+/* ========================================
+   RESPONSIVE DESIGN - MOBILE FIRST
+   ======================================== */
+
+/* Mobile devices (< 640px) */
+@media (max-width: 640px) {
+    .tab-navigation {
+        padding: 0 12px;
+        min-height: 56px;
+    }
+
+    .tab-btn {
+        padding: 10px 14px;
+        font-size: 14px;
+    }
+
+    .header-actions {
+        gap: 6px;
+    }
+
+    /* Hide layout toggle on mobile */
+    .layout-toggle-btn {
+        display: none;
+    }
+
+    .clear-btn {
+        padding: 6px 12px;
+        font-size: 13px;
+    }
+
+    .header {
+        padding: 16px 20px;
+    }
+
+    .header h1 {
+        font-size: 20px;
+    }
+
+    .chat-container {
+        padding: 16px;
+    }
+
+    .input-container {
+        padding: 12px 16px;
+    }
+
+    #messageInput {
+        padding: 10px 16px;
+        font-size: 16px; /* Prevent zoom on iOS */
+    }
+
+    .send-btn {
+        padding: 10px 20px;
+        font-size: 14px;
+    }
+
+    .message-content {
+        max-width: 85%;
+        font-size: 15px;
+    }
+
+    /* Calendar mobile optimizations */
+    .calendar-section {
+        padding: 12px;
+    }
+
+    .calendar-header h2 {
+        font-size: 18px;
+    }
+
+    .nav-btn {
+        padding: 6px 12px;
+        font-size: 16px;
+    }
+
+    .calendar-controls {
+        flex-wrap: wrap;
+        gap: 6px;
+    }
+
+    .control-btn {
+        padding: 6px 12px;
+        font-size: 13px;
+        flex: 1;
+        min-width: 100px;
+    }
+
+    .calendar-grid {
+        gap: 4px;
+    }
+
+    .calendar-day {
+        padding: 4px;
+        border-radius: 6px;
+    }
+
+    .calendar-day-number {
+        font-size: 12px;
+    }
+
+    .calendar-day-header {
+        padding: 6px;
+        font-size: 10px;
+    }
+
+    .event-dot {
+        height: 2px;
+    }
+
+    .events-list h3 {
+        font-size: 16px;
+    }
+
+    .event-card {
+        padding: 12px;
+    }
+
+    .event-card-title {
+        font-size: 14px;
+    }
+
+    .event-card-category {
+        font-size: 10px;
+        padding: 2px 6px;
+    }
+
+    .event-card-time {
+        font-size: 12px;
+    }
+
+    /* Modal optimizations for mobile */
+    .modal-content {
+        width: 95%;
+        max-height: 85vh;
+        border-radius: 12px;
+    }
+
+    .modal-header {
+        padding: 16px 20px;
+    }
+
+    .modal-header h2 {
+        font-size: 18px;
+    }
+
+    .modal-body {
+        padding: 20px;
+    }
+
+    .form-row {
+        flex-direction: column;
+        gap: 0;
+    }
+
+    .form-group input,
+    .form-group textarea,
+    .form-group select {
+        font-size: 16px; /* Prevent zoom on iOS */
+        padding: 12px;
+    }
+
+    .btn-primary,
+    .btn-secondary,
+    .btn-delete {
+        padding: 12px 16px; /* Larger touch targets */
+        font-size: 15px;
+    }
+
+    .modal-actions {
+        flex-direction: column-reverse;
+        gap: 10px;
+    }
+
+    .modal-actions-right {
+        width: 100%;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .modal-actions-right button,
+    .btn-delete {
+        width: 100%;
+    }
+}
+
+/* Tablet devices (640px - 1024px) */
+@media (min-width: 640px) and (max-width: 1024px) {
+    .tab-navigation {
+        padding: 0 16px;
+    }
+
+    .tab-btn {
+        padding: 12px 24px;
+        font-size: 15px;
+    }
+
+    /* Hide layout toggle on tablets */
+    .layout-toggle-btn {
+        display: none;
+    }
+
+    .header {
+        padding: 18px 24px;
+    }
+
+    .header h1 {
+        font-size: 22px;
+    }
+
+    .chat-container {
+        padding: 24px;
+    }
+
+    .input-container {
+        padding: 16px 24px;
+    }
+
+    .message-content {
+        max-width: 75%;
+    }
+
+    /* Calendar tablet optimizations */
+    .calendar-section {
+        padding: 16px;
+    }
+
+    .calendar-grid {
+        gap: 6px;
+    }
+
+    .calendar-day {
+        padding: 6px;
+    }
+
+    .calendar-day-number {
+        font-size: 14px;
+    }
+
+    .calendar-day-header {
+        padding: 8px;
+        font-size: 11px;
+    }
+
+    /* Modal optimizations for tablet */
+    .modal-content {
+        width: 85%;
+        max-width: 600px;
+    }
+
+    .form-group input,
+    .form-group textarea,
+    .form-group select {
+        font-size: 15px;
+    }
+}
+
+/* Small laptops (1024px - 1280px) */
+@media (min-width: 1024px) and (max-width: 1280px) {
+    .chat-section {
+        max-width: 900px;
+    }
+
+    .app-container.side-by-side .chat-section {
+        max-width: 50%;
+    }
+
+    .app-container.side-by-side .calendar-section {
+        max-width: 50%;
+    }
+
+    .layout-toggle-btn {
+        display: block;
+    }
+
+    .calendar-grid {
+        gap: 6px;
+    }
+
+    .calendar-day {
+        padding: 6px;
+    }
+}
+
+/* Desktop (> 1280px) */
+@media (min-width: 1280px) {
+    .chat-section {
+        max-width: 1000px;
+    }
+
+    .app-container.side-by-side .chat-section {
+        max-width: 55%;
+    }
+
+    .app-container.side-by-side .calendar-section {
+        max-width: 45%;
+    }
+
+    .layout-toggle-btn {
+        display: block;
+    }
+
+    .calendar-grid {
+        gap: 8px;
+    }
+
+    .calendar-day {
+        padding: 8px;
+    }
+
+    .message-content {
+        max-width: 65%;
+    }
+}
+
+/* Touch device optimizations */
+@media (hover: none) and (pointer: coarse) {
+    /* Increase all button sizes for touch */
+    .tab-btn,
+    .nav-btn,
+    .control-btn,
+    .clear-btn,
+    .layout-toggle-btn {
+        min-height: 44px;
+        min-width: 44px;
+    }
+
+    .send-btn {
+        min-height: 44px;
+        padding: 12px 24px;
+    }
+
+    .calendar-day {
+        min-height: 44px;
+    }
+
+    /* Larger tap targets for event cards */
+    .event-card {
+        padding: 16px;
+    }
+}
+
+/* Landscape orientation on mobile */
+@media (max-width: 896px) and (orientation: landscape) {
+    .app-container {
+        height: 100vh;
+    }
+
+    .tab-navigation {
+        min-height: 48px;
+    }
+
+    .header {
+        padding: 12px 20px;
+    }
+
+    .header h1 {
+        font-size: 18px;
+    }
+
+    .input-container {
+        padding: 10px 16px;
+    }
+
+    .chat-container {
+        padding: 12px 16px;
+    }
+
+    .calendar-section {
+        padding: 12px;
+    }
+}
+
+/* High resolution displays */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+    .event-dot {
+        height: 4px;
+    }
+
+    .calendar-day {
+        border-width: 1px;
+    }
 }

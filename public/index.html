@@ -8,14 +8,22 @@
 </head>
 <body>
     <div class="app-container">
+        <!-- Tab Navigation -->
+        <div class="tab-navigation">
+            <div class="tab-container">
+                <button id="chatTab" class="tab-btn active">💬 Chat</button>
+                <button id="calendarTab" class="tab-btn">📅 Calendar</button>
+            </div>
+            <div class="header-actions">
+                <button id="toggleLayoutBtn" class="layout-toggle-btn" title="Toggle side-by-side view">⚡</button>
+                <button id="clearBtn" class="clear-btn">Clear Chat</button>
+            </div>
+        </div>
+
         <!-- Chat Section -->
-        <div class="chat-section">
+        <div class="chat-section active-view">
             <div class="header">
                 <h1>🤖 Personal Assistant</h1>
-                <div class="header-buttons">
-                    <button id="toggleCalendarBtn" class="toggle-btn">📅 Calendar</button>
-                    <button id="clearBtn" class="clear-btn">Clear Chat</button>
-                </div>
             </div>
 
             <div id="chatContainer" class="chat-container">
